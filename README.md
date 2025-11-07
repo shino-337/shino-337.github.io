@@ -1,4 +1,3 @@
-@ -1,211 +0,0 @@
 # OWASP DSOMM Assessment Tool
 
 [🇻🇳 Tiếng Việt](#tiếng-việt) | [🇬🇧 English](#english)
