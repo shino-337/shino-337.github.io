@@ -33,6 +33,7 @@
       <div class="view-tabs">
         <button class="view-tab active" data-view="dsomm" data-i18n="view.dsomm">DSOMM Assessment</button>
         <button class="view-tab" data-view="samm" data-i18n="view.samm">SAMM Mapping</button>
+        <button class="view-tab" data-view="pipeline" data-i18n="view.pipeline">Pipeline Roles</button>
       </div>
 
       <section class="summary">
@@ -84,6 +85,159 @@
         <div id="samm-matrix"></div>
       </section>
 
+      <section class="pipeline-roles" style="display:none;">
+        <div class="pipeline-header">
+          <h2 data-i18n="pipeline.title">DevSecOps Pipeline Roles</h2>
+          <div class="pipeline-controls">
+            <button id="pipeline-edit-btn" class="primary" data-i18n="pipeline.edit">Chỉnh sửa</button>
+            <button id="pipeline-view-btn" class="primary" data-i18n="pipeline.view" style="display:none;">Xem Dashboard</button>
+          </div>
+        </div>
+        <div id="pipeline-edit-form" class="pipeline-edit-form">
+          <div class="pipeline-stages">
+            <div class="stage-section" data-stage="plan">
+              <h3 data-i18n="pipeline.stage.plan">Plan</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-plan-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-plan-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-plan-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="code">
+              <h3 data-i18n="pipeline.stage.code">Code</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-code-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-code-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-code-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="build">
+              <h3 data-i18n="pipeline.stage.build">Build</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-build-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-build-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-build-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="test">
+              <h3 data-i18n="pipeline.stage.test">Test</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-test-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-test-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-test-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="release">
+              <h3 data-i18n="pipeline.stage.release">Release</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-release-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-release-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-release-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="deploy">
+              <h3 data-i18n="pipeline.stage.deploy">Deploy</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-deploy-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-deploy-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-deploy-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="operate">
+              <h3 data-i18n="pipeline.stage.operate">Operate</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-operate-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-operate-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-operate-ops"></div>
+                </div>
+              </div>
+            </div>
+            <div class="stage-section" data-stage="monitor">
+              <h3 data-i18n="pipeline.stage.monitor">Monitor</h3>
+              <div class="role-tasks">
+                <div class="role-section" data-role="dev">
+                  <h4 data-i18n="pipeline.role.dev">Developer</h4>
+                  <div class="tasks-list" id="tasks-monitor-dev"></div>
+                </div>
+                <div class="role-section" data-role="sec">
+                  <h4 data-i18n="pipeline.role.sec">Security</h4>
+                  <div class="tasks-list" id="tasks-monitor-sec"></div>
+                </div>
+                <div class="role-section" data-role="ops">
+                  <h4 data-i18n="pipeline.role.ops">Operations</h4>
+                  <div class="tasks-list" id="tasks-monitor-ops"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="pipeline-dashboard" class="pipeline-dashboard" style="display:none;">
+          <div id="pipeline-visualization" class="pipeline-visualization"></div>
+        </div>
+      </section>
+
       <section class="matrix">
         <div class="matrix-header sticky">
           <h2 data-i18n="matrix.title">Ma trận tiêu chí</h2>
@@ -109,7 +263,7 @@
     </main>
 
     <footer class="app-footer">
-      <span>DevSecOps Maturity Model self-assessment tool</span>
+      <span>OWASP DSOMM DevSecOps – Bản demo tự đánh giá nội bộ</span>
       <a href="https://owasp.org/www-project-devsecops-maturity-model/" target="_blank" rel="noreferrer">Tài liệu DSOMM DevSecOps</a>
     </footer>
 
