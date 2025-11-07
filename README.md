@@ -49,6 +49,12 @@ php -S localhost:8080
 - ✅ **Tổng quan trực quan**: Biểu đồ radar hiển thị mức trưởng thành theo từng domain
 - ✅ **Mapping SAMM**: Tự động mapping kết quả DSOMM sang OWASP SAMM 2.0
 - ✅ **Biểu đồ SAMM**: Radar chart hiển thị mức SAMM theo function và stream
+- ✅ **DevSecOps Shared Responsibility Framework**: Định nghĩa và quản lý trách nhiệm của các role (Development, Security, Operations) trong từng stage của DevSecOps pipeline
+  - **8 Stages**: Plan, Code, Build, Test, Release, Deploy, Operate, Monitor
+  - **3 Roles**: Development (💻), Security (🔒), Operations (⚙️)
+  - **Dashboard trực quan**: Hiển thị pipeline với các tasks, goals, security methods, tools/techniques, và context cho từng stage
+  - **Phase labels**: Continuous Integration (Plan, Code, Build, Test, Release) và Continuous Delivery (Release, Deploy, Operate, Monitor)
+  - **Inline editing**: Chỉnh sửa trực tiếp tasks, goals, security methods, tools, và context trong dashboard
 - ✅ **Đa ngôn ngữ**: Hỗ trợ Tiếng Việt và English
 - ✅ **Lưu trữ**: Import/Export đánh giá dưới dạng JSON
 - ✅ **Tooltip chi tiết**: Hover vào tiêu chí để xem description, risk, measure, implementation guide, references
@@ -62,12 +68,26 @@ php -S localhost:8080
 2. **Xem tổng quan**:
    - Tab "DSOMM" hiển thị tổng quan và ma trận tiêu chí
    - Tab "SAMM Mapping" hiển thị kết quả mapping với SAMM 2.0
+   - Tab "Pipeline Roles" hiển thị DevSecOps Shared Responsibility Framework
 
-3. **Lưu trữ**:
+3. **DevSecOps Shared Responsibility Framework**:
+   - Click tab "Pipeline Roles" để mở framework
+   - Click "Chỉnh sửa" để định nghĩa tasks cho từng role trong từng stage
+   - Nhập task vào ô input và nhấn Enter để thêm
+   - Click "Xem Dashboard" để xem dashboard trực quan
+   - Trong dashboard, bạn có thể:
+     - Xem và chỉnh sửa Goals cho từng stage
+     - Xem và chỉnh sửa Security Method cho từng stage
+     - Xem và chỉnh sửa Tools/Technique cho từng stage
+     - Xem và chỉnh sửa Context cho từng stage
+     - Xem tasks của từng role (Development, Security, Operations) cho từng stage
+
+4. **Lưu trữ**:
    - Click "Xuất đánh giá" để tải file JSON
    - Click "Nhập đánh giá" để load lại từ file JSON
+   - Tất cả dữ liệu (DSOMM assessment, Pipeline tasks, Goals, Security Methods, Tools, Context) được lưu tự động trong localStorage
 
-4. **Chuyển đổi ngôn ngữ**:
+5. **Chuyển đổi ngôn ngữ**:
    - Click vào button ngôn ngữ (🌐) ở header
    - Chọn Tiếng Việt hoặc English
 
@@ -150,6 +170,12 @@ php -S localhost:8080
 - ✅ **Visual Overview**: Radar chart displays maturity level by domain
 - ✅ **SAMM Mapping**: Automatically maps DSOMM results to OWASP SAMM 2.0
 - ✅ **SAMM Chart**: Radar chart displays SAMM level by function and stream
+- ✅ **DevSecOps Shared Responsibility Framework**: Define and manage responsibilities of roles (Development, Security, Operations) across DevSecOps pipeline stages
+  - **8 Stages**: Plan, Code, Build, Test, Release, Deploy, Operate, Monitor
+  - **3 Roles**: Development (💻), Security (🔒), Operations (⚙️)
+  - **Visual Dashboard**: Display pipeline with tasks, goals, security methods, tools/techniques, and context for each stage
+  - **Phase Labels**: Continuous Integration (Plan, Code, Build, Test, Release) and Continuous Delivery (Release, Deploy, Operate, Monitor)
+  - **Inline Editing**: Directly edit tasks, goals, security methods, tools, and context in the dashboard
 - ✅ **Multi-language**: Supports Vietnamese and English
 - ✅ **Storage**: Import/Export assessment as JSON
 - ✅ **Detailed Tooltips**: Hover over criteria to see description, risk, measure, implementation guide, references
@@ -163,12 +189,26 @@ php -S localhost:8080
 2. **View Overview**:
    - "DSOMM" tab displays overview and criteria matrix
    - "SAMM Mapping" tab displays mapping results with SAMM 2.0
+   - "Pipeline Roles" tab displays DevSecOps Shared Responsibility Framework
 
-3. **Storage**:
+3. **DevSecOps Shared Responsibility Framework**:
+   - Click "Pipeline Roles" tab to open the framework
+   - Click "Edit" to define tasks for each role in each stage
+   - Type task in the input field and press Enter to add
+   - Click "View Dashboard" to see the visual dashboard
+   - In the dashboard, you can:
+     - View and edit Goals for each stage
+     - View and edit Security Method for each stage
+     - View and edit Tools/Technique for each stage
+     - View and edit Context for each stage
+     - View tasks for each role (Development, Security, Operations) for each stage
+
+4. **Storage**:
    - Click "Export Assessment" to download JSON file
    - Click "Import Assessment" to load from JSON file
+   - All data (DSOMM assessment, Pipeline tasks, Goals, Security Methods, Tools, Context) is automatically saved in localStorage
 
-4. **Switch Language**:
+5. **Switch Language**:
    - Click the language button (🌐) in the header
    - Select Vietnamese or English
 
