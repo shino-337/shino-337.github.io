@@ -52,7 +52,6 @@ php -S localhost:8080
 - ✅ **Đa ngôn ngữ**: Hỗ trợ Tiếng Việt và English
 - ✅ **Lưu trữ**: Import/Export đánh giá dưới dạng JSON
 - ✅ **Tooltip chi tiết**: Hover vào tiêu chí để xem description, risk, measure, implementation guide, references
-- ✅ **Watermark**: Bảo vệ bản quyền với watermark "powered by tuatnh"
 
 ### 📖 Sử dụng
 
@@ -154,7 +153,6 @@ php -S localhost:8080
 - ✅ **Multi-language**: Supports Vietnamese and English
 - ✅ **Storage**: Import/Export assessment as JSON
 - ✅ **Detailed Tooltips**: Hover over criteria to see description, risk, measure, implementation guide, references
-- ✅ **Watermark**: Copyright protection with "powered by tuatnh" watermark
 
 ### 📖 Usage
 
