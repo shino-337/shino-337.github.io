@@ -48,6 +48,18 @@ const translations = {
     'matrix.level': 'Mức đạt:',
     'matrix.loading': 'Đang tải dữ liệu...',
     'matrix.notFound': 'Không tìm thấy tiêu chí nào...',
+    'matrix.avgLevel': 'Mức TB:',
+    'matrix.practices': 'tiểu mục',
+    'matrix.pageOf': 'Trang',
+    'matrix.levelAchieved': 'Mức đạt:',
+    'matrix.notMet': 'Chưa đáp ứng',
+    'matrix.level': 'Mức',
+    'matrix.clickToTickAll': 'click để tick tất cả',
+    'matrix.collapse': 'Thu gọn',
+    'matrix.expand': 'Mở rộng',
+    'matrix.noCriteriaFilter': 'Không tìm thấy tiêu chí nào phù hợp với bộ lọc.',
+    'error.cannotReadJSON': 'Không thể đọc tệp JSON.',
+    'error.invalidJSON': 'Tệp JSON không đúng định dạng.',
     'view.dsomm': 'DSOMM Assessment',
     'view.samm': 'SAMM Mapping',
   },
@@ -88,6 +100,18 @@ const translations = {
     'matrix.level': 'Level Achieved:',
     'matrix.loading': 'Loading data...',
     'matrix.notFound': 'No criteria found...',
+    'matrix.avgLevel': 'Avg Level:',
+    'matrix.practices': 'practices',
+    'matrix.pageOf': 'Page',
+    'matrix.levelAchieved': 'Level Achieved:',
+    'matrix.notMet': 'Not Met',
+    'matrix.level': 'Level',
+    'matrix.clickToTickAll': 'click to tick all',
+    'matrix.collapse': 'Collapse',
+    'matrix.expand': 'Expand',
+    'matrix.noCriteriaFilter': 'No criteria match the filter.',
+    'error.cannotReadJSON': 'Cannot read JSON file.',
+    'error.invalidJSON': 'Invalid JSON file format.',
     'view.dsomm': 'DSOMM Assessment',
     'view.samm': 'SAMM Mapping',
   },
@@ -339,7 +363,7 @@ function renderSummary() {
 
     card.innerHTML = `
       <h3>${d.name}</h3>
-      <div class="meta"><span>Mức TB: ${level.toFixed(1)}/5</span><span>${d.practices.length} tiểu mục</span></div>
+      <div class="meta"><span>${t('matrix.avgLevel')} ${level.toFixed(1)}/5</span><span>${d.practices.length} ${t('matrix.practices')}</span></div>
     `;
     card.appendChild(seg);
     card.appendChild(counts);
@@ -457,6 +481,16 @@ function renderRadarChart() {
     const r = radius * (ring / 5);
     ctx.fillText(ring.toString(), centerX + r - 8, centerY);
   }
+  
+  // Watermark
+  ctx.save();
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('Powered by Shino-337', canvas.width - 10, canvas.height - 10);
+  ctx.restore();
 }
 
 let currentPage = 1;
@@ -565,7 +599,7 @@ function renderMatrix() {
   
   // Update pagination UI (an toàn khi phần tử chưa tồn tại do cache)
   const pageInfoEl = $('#page-info');
-  if (pageInfoEl) pageInfoEl.textContent = `Trang ${currentPage} / ${totalPages}`;
+  if (pageInfoEl) pageInfoEl.textContent = `${t('matrix.pageOf')} ${currentPage} / ${totalPages}`;
   const prevBtn = $('#prev-page');
   if (prevBtn) prevBtn.disabled = currentPage === 1;
   const nextBtn = $('#next-page');
@@ -585,7 +619,7 @@ function renderMatrix() {
   matrix.innerHTML = '';
   
   if (pageItems.length === 0) {
-    matrix.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">Không tìm thấy tiêu chí nào phù hợp với bộ lọc.</div>';
+    matrix.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--muted);">${t('matrix.noCriteriaFilter')}</div>`;
     return;
   }
   
@@ -613,9 +647,9 @@ function renderMatrix() {
       const levelDisplay = document.createElement('div');
       levelDisplay.style.cssText = 'font-size: 12px; color: var(--muted); margin-right: 8px;';
       if (currentLevel > 0) {
-        levelDisplay.innerHTML = `Mức đạt: <strong style="color: var(--primary);">${currentLevel}/5</strong>`;
+        levelDisplay.innerHTML = `${t('matrix.levelAchieved')} <strong style="color: var(--primary);">${currentLevel}/5</strong>`;
       } else {
-        levelDisplay.innerHTML = `Mức đạt: <span style="color: var(--muted);">0/5</span>`;
+        levelDisplay.innerHTML = `${t('matrix.levelAchieved')} <span style="color: var(--muted);">0/5</span>`;
       }
       
       const levels = [0,1,2,3,4,5];
@@ -624,7 +658,7 @@ function renderMatrix() {
         btn.className = 'level-btn' + (lvl === currentLevel ? ' active' : '');
         const percent = percentages[lvl] || 0;
         btn.textContent = lvl === 0 ? '0' : `${lvl}`;
-        btn.title = lvl === 0 ? 'Chưa đáp ứng' : `Mức ${lvl}: ${Math.round(percent * 100)}% (click để tick tất cả)`;
+        btn.title = lvl === 0 ? t('matrix.notMet') : `${t('matrix.level')} ${lvl}: ${Math.round(percent * 100)}% (${t('matrix.clickToTickAll')})`;
         btn.addEventListener('click', () => {
           // Chọn mức L (chuẩn hoá) => ánh xạ về mức thô theo số mức khả dụng
           const maxAvail = result.maxAvailableLevel || 5;
@@ -645,7 +679,7 @@ function renderMatrix() {
       // Collapse button
       const collapseBtn = document.createElement('button');
       collapseBtn.className = 'collapse-btn';
-      collapseBtn.textContent = 'Thu gọn';
+      collapseBtn.textContent = t('matrix.collapse');
 
       header.appendChild(title);
       header.appendChild(levelDisplay);
@@ -667,7 +701,7 @@ function renderMatrix() {
         
         const header = document.createElement('div');
         header.className = 'level-header';
-        header.innerHTML = `<strong>Mức ${lvl}</strong> <span style="color: ${isAchieved ? 'var(--ok)' : 'var(--muted)'};">(${ticked}/${acts.length} - ${Math.round(percent)}%)</span>`;
+        header.innerHTML = `<strong>${t('matrix.level')} ${lvl}</strong> <span style="color: ${isAchieved ? 'var(--ok)' : 'var(--muted)'};">(${ticked}/${acts.length} - ${Math.round(percent)}%)</span>`;
         body.appendChild(header);
 
         acts.forEach((a) => {
@@ -738,7 +772,7 @@ function renderMatrix() {
       // Áp dụng trạng thái thu gọn: mặc định thu gọn nếu chưa có trạng thái
       const defaultCollapsed = collapsedState[p.id] ?? true;
       if (defaultCollapsed) wrap.classList.add('collapsed');
-      collapseBtn.textContent = defaultCollapsed ? 'Mở rộng' : 'Thu gọn';
+      collapseBtn.textContent = defaultCollapsed ? t('matrix.expand') : t('matrix.collapse');
 
       wrap.appendChild(header);
       wrap.appendChild(body);
@@ -748,7 +782,7 @@ function renderMatrix() {
         const isCollapsed = wrap.classList.toggle('collapsed');
         collapsedState[p.id] = isCollapsed;
         saveCollapseState();
-        collapseBtn.textContent = isCollapsed ? 'Mở rộng' : 'Thu gọn';
+        collapseBtn.textContent = isCollapsed ? t('matrix.expand') : t('matrix.collapse');
       });
     });
 }
@@ -781,10 +815,10 @@ function wireIO() {
         renderSummary();
         renderMatrix();
       } else {
-        alert('Tệp JSON không đúng định dạng.');
+        alert(t('error.invalidJSON'));
       }
     } catch (err) {
-      alert('Không thể đọc tệp JSON.');
+      alert(t('error.cannotReadJSON'));
     } finally {
       e.target.value = '';
     }
@@ -1231,9 +1265,19 @@ function renderSAMMChart() {
     ctx.fillStyle = streamColors[stream];
     ctx.fillRect(20, legendY - 8, 12, 12);
     ctx.fillStyle = '#e6edf3';
-    ctx.fillText(`Stream ${stream}`, 38, legendY);
+    ctx.fillText(`${t('samm.stream')} ${stream}`, 38, legendY);
     legendY += 18;
   });
+  
+  // Watermark
+  ctx.save();
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('Powered by Shino-337', canvas.width - 10, canvas.height - 10);
+  ctx.restore();
 }
 
 function renderSAMMMapping() {

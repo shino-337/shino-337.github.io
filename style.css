@@ -205,4 +205,30 @@ button.danger:hover { filter: brightness(1.08); }
   .practice-body { grid-template-columns: 1fr; }
 }
 
+/* Watermark - Không thể remove */
+.summary::after,
+.matrix::after,
+.samm-mapping::after {
+  content: 'Powered by Shino-337';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: rgba(230, 237, 243, 0.15);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  z-index: 1;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.summary,
+.matrix,
+.samm-mapping {
+  position: relative;
+}
+
 
