@@ -1,15 +1,10 @@
 const DATA_URL = './data/dsomm-devsecops.json';
 
-/**
- * Trạng thái lựa chọn: { [activityId]: boolean }
- * Quy ước tính mức: Tính tỷ lệ đạt % theo từng mức, mức đạt nếu ≥ threshold (80%)
- */
 const STATE_KEY = 'dsomm_assessment_devsecops_v1';
-const LEVEL_THRESHOLD = 0.8; // 80% activity phải tick để coi là đạt mức đó
+const LEVEL_THRESHOLD = 0.8;
 const COLLAPSE_STATE_KEY = 'dsomm_collapse_state_v1';
 const LANG_KEY = 'dsomm_language_v1';
 
-// Translations
 const translations = {
   vi: {
     'app.title': 'Đánh giá DSOMM (DevSecOps)',
@@ -135,7 +130,6 @@ function t(key) {
 }
 
 function applyTranslations() {
-  // Update all elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (translations[currentLang][key]) {
@@ -143,7 +137,6 @@ function applyTranslations() {
     }
   });
   
-  // Update placeholders
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
     if (translations[currentLang][key]) {
@@ -151,13 +144,11 @@ function applyTranslations() {
     }
   });
   
-  // Update language button
   const langText = $('#lang-text');
   if (langText) {
     langText.textContent = currentLang.toUpperCase();
   }
   
-  // Update select options
   const sammFunctionFilter = $('#samm-function-filter');
   if (sammFunctionFilter && sammFunctionFilter.options.length > 0) {
     sammFunctionFilter.options[0].textContent = t('samm.allFunctions');
@@ -173,11 +164,9 @@ function applyTranslations() {
     domainFilter.options[0].textContent = t('matrix.allDomains');
   }
   
-  // Re-render content
   if (dsommData) {
     renderSummary();
     renderMatrix();
-    // Only render SAMM if SAMM tab is visible
     const sammMapping = document.querySelector('.samm-mapping');
     if (sammMapping && sammMapping.style.display !== 'none') {
       renderSAMMChart();
@@ -194,11 +183,8 @@ function switchLanguage(lang) {
   }
 }
 
-/** @type {Record<string, boolean>} */
 let selectionState = {};
-/** @type {any} */
 let dsommData = null;
-/** @type {Record<string, boolean>} */
 let collapsedState = {};
 
 const $ = (q) => document.querySelector(q);
@@ -231,15 +217,9 @@ async function loadData() {
   dsommData = await res.json();
 }
 
-/**
- * Tính mức và tỷ lệ đạt của một practice (subdimension)
- * Chuẩn hoá: nếu practice chỉ có tối đa K mức khả dụng, sẽ quy về thang 5 bằng round((raw/K)*5)
- * Trả về: { level: 0-5 (normalized), rawLevel: 0-K, maxAvailableLevel: K, percentages: {1..5: 0..1} }
- */
 function computePracticeLevel(practice) {
   const percentages = {};
   let achievedRaw = 0;
-  // Xác định số mức khả dụng (có activity)
   let maxAvailable = 0;
   for (let lvl = 1; lvl <= 5; lvl++) {
     const group = practice.levels.find(l => l.level === lvl);
@@ -249,14 +229,11 @@ function computePracticeLevel(practice) {
     }
   }
 
-  // Tính theo mức khả dụng
   for (let lvl = 1; lvl <= 5; lvl++) {
     const group = practice.levels.find(l => l.level === lvl);
     const activities = group?.activities || [];
     if (activities.length === 0) {
-      // Không có activity ở mức này: coi như đạt 100% để không chặn chuỗi tuần tự
       percentages[lvl] = 1;
-      // achievedRaw không tăng trực tiếp ở đây; chỉ tăng khi gặp mức có activity và đạt ngưỡng
       continue;
     }
     const ticked = activities.filter(a => !!selectionState[a.id]).length;
@@ -264,7 +241,6 @@ function computePracticeLevel(practice) {
     percentages[lvl] = percent;
 
     if (percent >= LEVEL_THRESHOLD) {
-      // Kiểm tra các mức trước đó đã đạt chưa (tuần tự)
       let prevAllOk = true;
       for (let prev = 1; prev < lvl; prev++) {
         if ((percentages[prev] ?? 0) < LEVEL_THRESHOLD) {
@@ -283,7 +259,6 @@ function computePracticeLevel(practice) {
 }
 
 function computeScores() {
-  // Trả về: { domains: {id: {avg, practicesCount, practiceDetails}}, overall: {avg} }
   const domainScores = new Map();
   let sum = 0;
   let count = 0;
@@ -295,7 +270,7 @@ function computeScores() {
     
     domain.practices.forEach((p) => {
       const result = computePracticeLevel(p);
-      const lvl = result.level; // normalized 0..5
+      const lvl = result.level;
       dSum += lvl;
       dCount += 1;
       sum += lvl;
@@ -317,7 +292,6 @@ function renderSummary() {
   $('#overall-score').textContent = count > 0 ? String(overallLevel) : '-';
   $('#overall-progress').style.width = `${(overallAvg / 5) * 100}%`;
 
-  // Render overall segmented bar showing level thresholds 1..5 and current level highlight
   const seg = document.getElementById('overall-segments');
   seg.innerHTML = '';
   for (let lvl = 1; lvl <= 5; lvl++) {
@@ -336,7 +310,6 @@ function renderSummary() {
     const info = domainScores.get(d.id) || { avg: 0, practicesCount: 0, practiceDetails: [] };
     const level = Math.max(1, Math.round(info.avg || 0));
 
-    // Phân bố mức theo subdimension
     const dist = {1:0,2:0,3:0,4:0,5:0};
     info.practiceDetails.forEach((pd) => { 
       if (pd.level > 0) dist[pd.level]++; 
@@ -385,7 +358,6 @@ function renderRadarChart() {
   const containerWidth = container.offsetWidth;
   const containerHeight = container.offsetHeight || 500;
   const size = Math.min(containerWidth, containerHeight);
-  // Tạo padding để có chỗ vẽ nhãn đầy đủ
   const padding = 80;
   canvas.width = size;
   canvas.height = size;
@@ -398,7 +370,6 @@ function renderRadarChart() {
   const domains = dsommData.domains;
   const angleStep = (2 * Math.PI) / domains.length;
   
-  // Vẽ grid
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.lineWidth = 1;
   for (let ring = 1; ring <= 5; ring++) {
@@ -407,7 +378,6 @@ function renderRadarChart() {
     ctx.stroke();
   }
   
-  // Vẽ trục
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   for (let i = 0; i < domains.length; i++) {
     const angle = i * angleStep - Math.PI / 2;
@@ -419,7 +389,6 @@ function renderRadarChart() {
     ctx.stroke();
   }
   
-  // Vẽ data
   ctx.fillStyle = 'rgba(58, 160, 255, 0.3)';
   ctx.strokeStyle = '#3aa0ff';
   ctx.lineWidth = 2;
@@ -438,7 +407,6 @@ function renderRadarChart() {
   ctx.fill();
   ctx.stroke();
   
-  // Labels đầy đủ, tự xuống dòng
   ctx.fillStyle = '#e6edf3';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -474,7 +442,6 @@ function renderRadarChart() {
     });
   });
   
-  // Level labels
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.font = '10px sans-serif';
   for (let ring = 1; ring <= 5; ring++) {
@@ -482,17 +449,17 @@ function renderRadarChart() {
     ctx.fillText(ring.toString(), centerX + r - 8, centerY);
   }
   
-  // Watermark - Vẽ cuối cùng để đảm bảo hiển thị trên cùng
   ctx.save();
-  ctx.globalAlpha = 0.2; // Tăng opacity để dễ nhìn hơn
-  ctx.fillStyle = '#e6edf3';
-  ctx.font = 'bold 16px sans-serif';
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
-  // Đảm bảo watermark không bị che bởi labels
-  const watermarkX = canvas.width - 15;
-  const watermarkY = canvas.height - 15;
-  ctx.fillText('Powered by Shino-337', watermarkX, watermarkY);
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.fillText('Powered by Shino-337', canvas.width - 15, canvas.height - 15);
   ctx.restore();
 }
 
@@ -572,17 +539,14 @@ function renderMatrix() {
     return;
   }
   
-  // Filter
   const domainFilter = $('#domain-filter')?.value || '';
   const searchQuery = $('#search-input')?.value?.toLowerCase() || '';
   
   filteredPractices = [];
   dsommData.domains.forEach((domain) => {
-    // Filter by domain
     if (domainFilter && domainFilter !== '' && domain.id !== domainFilter && domain.name !== domainFilter) return;
     
     domain.practices.forEach((p) => {
-      // Filter by search
       const matchesSearch = !searchQuery || searchQuery.trim() === '' ||
         p.name.toLowerCase().includes(searchQuery) ||
         domain.name.toLowerCase().includes(searchQuery);
@@ -592,7 +556,6 @@ function renderMatrix() {
     });
   });
   
-  // Pagination
   const totalPages = Math.max(1, Math.ceil(filteredPractices.length / itemsPerPage));
   if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
   if (currentPage < 1) currentPage = 1;
@@ -600,7 +563,6 @@ function renderMatrix() {
   const end = start + itemsPerPage;
   const pageItems = filteredPractices.slice(start, end);
   
-  // Update pagination UI (an toàn khi phần tử chưa tồn tại do cache)
   const pageInfoEl = $('#page-info');
   if (pageInfoEl) pageInfoEl.textContent = `${t('matrix.pageOf')} ${currentPage} / ${totalPages}`;
   const prevBtn = $('#prev-page');
@@ -608,7 +570,6 @@ function renderMatrix() {
   const nextBtn = $('#next-page');
   if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
   
-  // Populate domain filter
   const df = $('#domain-filter');
   if (df && df.options.length === 1) {
     dsommData.domains.forEach(d => {
@@ -643,10 +604,8 @@ function renderMatrix() {
       const picker = document.createElement('div');
       picker.className = 'level-picker';
       const result = computePracticeLevel(p);
-      const currentLevel = result.level; // normalized 0..5
+      const currentLevel = result.level;
       const percentages = result.percentages;
-      
-      // Hiển thị mức đạt và tỷ lệ %
       const levelDisplay = document.createElement('div');
       levelDisplay.style.cssText = 'font-size: 12px; color: var(--muted); margin-right: 8px;';
       if (currentLevel > 0) {
@@ -663,7 +622,6 @@ function renderMatrix() {
         btn.textContent = lvl === 0 ? '0' : `${lvl}`;
         btn.title = lvl === 0 ? t('matrix.notMet') : `${t('matrix.level')} ${lvl}: ${Math.round(percent * 100)}% (${t('matrix.clickToTickAll')})`;
         btn.addEventListener('click', () => {
-          // Chọn mức L (chuẩn hoá) => ánh xạ về mức thô theo số mức khả dụng
           const maxAvail = result.maxAvailableLevel || 5;
           const desiredRaw = Math.max(0, Math.min(maxAvail, Math.round((lvl / 5) * maxAvail)));
           for (let l = 1; l <= 5; l++) {
@@ -679,7 +637,6 @@ function renderMatrix() {
         picker.appendChild(btn);
       });
 
-      // Collapse button
       const collapseBtn = document.createElement('button');
       collapseBtn.className = 'collapse-btn';
       collapseBtn.textContent = t('matrix.collapse');
@@ -692,7 +649,6 @@ function renderMatrix() {
       const body = document.createElement('div');
       body.className = 'practice-body';
 
-      // Hiển thị theo nhóm mức 1..5, mỗi activity là một checkbox tick được
       for (let lvl = 1; lvl <= 5; lvl++) {
         const group = p.levels.find(l => l.level === lvl);
         const acts = group?.activities || [];
@@ -718,9 +674,7 @@ function renderMatrix() {
             selectionState[a.id] = check.checked;
             saveState();
             renderSummary();
-            // Cập nhật lại level hiển thị ở header
             renderMatrix();
-            // Cập nhật SAMM mapping nếu đang ở tab SAMM
             if (document.querySelector('.samm-mapping')?.style.display !== 'none') {
               renderSAMMChart();
               renderSAMMMapping();
@@ -738,7 +692,6 @@ function renderMatrix() {
             text.appendChild(desc);
           }
 
-          // Tooltip
           const tooltip = document.createElement('div');
           tooltip.className = 'activity-tooltip';
           tooltip.innerHTML = renderActivityTooltip(a);
@@ -748,10 +701,8 @@ function renderMatrix() {
           item.appendChild(tooltip);
           body.appendChild(item);
 
-          // Tooltip positioning
           const show = (e) => {
             tooltip.style.display = 'block';
-            // đo kích thước sau khi hiển thị
             const pad = 12;
             const vw = window.innerWidth;
             const vh = window.innerHeight;
@@ -772,7 +723,6 @@ function renderMatrix() {
         });
       }
 
-      // Áp dụng trạng thái thu gọn: mặc định thu gọn nếu chưa có trạng thái
       const defaultCollapsed = collapsedState[p.id] ?? true;
       if (defaultCollapsed) wrap.classList.add('collapsed');
       collapseBtn.textContent = defaultCollapsed ? t('matrix.expand') : t('matrix.collapse');
@@ -836,7 +786,6 @@ function wireIO() {
     }
   });
   
-  // Pagination
   $('#prev-page')?.addEventListener('click', () => {
     if (currentPage > 1) {
       currentPage--;
@@ -854,7 +803,6 @@ function wireIO() {
     }
   });
   
-  // Filter
   $('#domain-filter')?.addEventListener('change', () => {
     currentPage = 1;
     renderMatrix();
@@ -865,13 +813,11 @@ function wireIO() {
     renderMatrix();
   });
 
-  // Dense toggle
   $('#dense-toggle')?.addEventListener('change', (e) => {
     const checked = e.target.checked;
     document.body.classList.toggle('dense', checked);
   });
 
-  // Collapse/Expand all
   $('#collapse-all')?.addEventListener('click', () => {
     dsommData?.domains?.forEach((d) => d.practices.forEach((p) => { collapsedState[p.id] = true; }));
     saveCollapseState();
@@ -884,7 +830,6 @@ function wireIO() {
   });
 }
 
-// SAMM Business Functions mapping
 const SAMM_FUNCTIONS = {
   'G': 'Governance',
   'D': 'Design',
@@ -893,7 +838,6 @@ const SAMM_FUNCTIONS = {
   'O': 'Operations',
 };
 
-// SAMM Practices mapping (từ SAMM Toolkit 2.0.6)
 const SAMM_PRACTICES = {
   'G': {
     'PS': 'Strategy & Metrics',
@@ -926,7 +870,6 @@ const SAMM_PRACTICES = {
 };
 
 function parseSAMMCode(code) {
-  // Format: "I-SB-1-A" -> { function: "I", practice: "SB", level: 1, stream: "A" }
   const parts = code.split('-');
   if (parts.length !== 4) return null;
   const func = parts[0];
@@ -942,11 +885,6 @@ function parseSAMMCode(code) {
   };
 }
 
-/**
- * Tính điểm DSOMM theo domain
- * Bước 1: Chuẩn hóa true/false thành 1/0
- * Bước 3: Tính điểm trung bình theo domain (scale 0-3)
- */
 function computeDSOMMDomainScores() {
   const domainScores = new Map();
   
@@ -957,14 +895,13 @@ function computeDSOMMDomainScores() {
     domain.practices.forEach((practice) => {
       practice.levels.forEach((levelGroup) => {
         levelGroup.activities.forEach((activity) => {
-          const score = selectionState[activity.id] ? 1 : 0; // Bước 1: true/false → 1/0
+          const score = selectionState[activity.id] ? 1 : 0;
           totalScore += score;
           totalCount += 1;
         });
       });
     });
     
-    // Bước 3: Tính điểm trung bình và scale lên 0-3
     const avgScore = totalCount > 0 ? (totalScore / totalCount) * 3 : 0;
     domainScores.set(domain.id, {
       domain: domain.name,
@@ -978,25 +915,15 @@ function computeDSOMMDomainScores() {
   return domainScores;
 }
 
-/**
- * Quy đổi DSOMM score sang SAMM level
- * Bước 4: SAMM_Level = round(1 + (DSOMM_Score/3) * 2, 1)
- */
 function convertDSOMMToSAMMLevel(dsommScore) {
-  // dsommScore: 0-3
-  // SAMM Level: 1-3
-  // Công thức: SAMM_Level = 1 + (DSOMM_Score/3) * 2
   const sammLevel = 1 + (dsommScore / 3) * 2;
-  return Math.max(1, Math.min(3, Math.round(sammLevel * 10) / 10)); // Round to 1 decimal
+  return Math.max(1, Math.min(3, Math.round(sammLevel * 10) / 10));
 }
 
 function aggregateSAMMResults() {
-  // Bước 2 & 4: Gắn UUID với domain DSOMM và quy đổi sang SAMM
   const sammMap = new Map();
   const dsommDomainScores = computeDSOMMDomainScores();
-  
-  // Map domain DSOMM → SAMM practices
-  const domainToSAMM = new Map(); // domain.id → [samm practices]
+  const domainToSAMM = new Map();
   
   dsommData.domains.forEach((domain) => {
     domain.practices.forEach((practice) => {
@@ -1010,13 +937,10 @@ function aggregateSAMMResults() {
             
             const key = `${parsed.function}-${parsed.practice}`;
             
-            // Lưu domain DSOMM mapping
             if (!domainToSAMM.has(domain.id)) {
               domainToSAMM.set(domain.id, new Set());
             }
             domainToSAMM.get(domain.id).add(key);
-            
-            // Tạo SAMM practice entry
             if (!sammMap.has(key)) {
               sammMap.set(key, {
                 function: parsed.function,
@@ -1032,7 +956,6 @@ function aggregateSAMMResults() {
             const entry = sammMap.get(key);
             entry.dsommDomains.add(domain.id);
             
-            // Lưu activities (cho reference)
             const isTicked = !!selectionState[activity.id];
             if (isTicked) {
               entry.levels[parsed.level][parsed.stream].push({
@@ -1048,9 +971,7 @@ function aggregateSAMMResults() {
     });
   });
   
-  // Tính SAMM level từ DSOMM domain scores
   sammMap.forEach((practice, key) => {
-    // Tính average DSOMM score từ các domains liên quan
     let totalScore = 0;
     let count = 0;
     practice.dsommDomains.forEach(domainId => {
@@ -1064,11 +985,8 @@ function aggregateSAMMResults() {
     const avgDSOMMScore = count > 0 ? totalScore / count : 0;
     practice.dsommScore = avgDSOMMScore;
     
-    // Quy đổi sang SAMM level (theo stream)
     practice.sammLevels = {};
     ['A', 'B', 'C'].forEach(stream => {
-      // Có thể tính theo stream riêng hoặc dùng chung
-      // Tạm thời dùng chung cho tất cả streams
       practice.sammLevels[stream] = convertDSOMMToSAMMLevel(avgDSOMMScore);
     });
   });
@@ -1077,16 +995,11 @@ function aggregateSAMMResults() {
 }
 
 function computeSAMMLevel(sammPractice, stream, requireSequential = true) {
-  // requireSequential: true = yêu cầu tuần tự (Level N chỉ đạt nếu đã đạt Level 1..N-1)
-  // requireSequential: false = không yêu cầu tuần tự (chỉ cần có activity ở level đó)
-  
   if (requireSequential) {
-    // Kiểm tra tuần tự: Level N chỉ đạt nếu tất cả Level 1..N-1 đều có ít nhất 1 activity
     let achievedLevel = 0;
     for (let level = 1; level <= 3; level++) {
       const hasActivity = sammPractice.levels[level][stream].length > 0;
       if (hasActivity) {
-        // Kiểm tra các level trước đó
         let allPrevOk = true;
         for (let prev = 1; prev < level; prev++) {
           if (sammPractice.levels[prev][stream].length === 0) {
@@ -1097,17 +1010,14 @@ function computeSAMMLevel(sammPractice, stream, requireSequential = true) {
         if (allPrevOk) {
           achievedLevel = level;
         } else {
-          // Nếu level hiện tại có activity nhưng level trước chưa đạt → dừng
           break;
         }
       } else {
-        // Nếu level hiện tại không có activity → dừng
         break;
       }
     }
     return achievedLevel;
   } else {
-    // Không yêu cầu tuần tự: mức cao nhất có activity
     for (let level = 3; level >= 1; level--) {
       if (sammPractice.levels[level][stream].length > 0) {
         return level;
@@ -1152,7 +1062,6 @@ function renderSAMMChart() {
   
   ctx.clearRect(0, 0, size, size);
   
-  // Group practices by function
   const practicesByFunction = new Map();
   Array.from(sammMap.values()).forEach(p => {
     if (!practicesByFunction.has(p.function)) {
@@ -1169,7 +1078,6 @@ function renderSAMMChart() {
   
   const angleStep = (2 * Math.PI) / functions.length;
   
-  // Vẽ grid (3 levels SAMM)
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.lineWidth = 1;
   for (let ring = 1; ring <= 3; ring++) {
@@ -1178,7 +1086,6 @@ function renderSAMMChart() {
     ctx.stroke();
   }
   
-  // Vẽ trục
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   functions.forEach((func, i) => {
     const angle = i * angleStep - Math.PI / 2;
@@ -1190,7 +1097,6 @@ function renderSAMMChart() {
     ctx.stroke();
   });
   
-  // Vẽ data cho từng stream
   const streamColors = {
     'A': '#3aa0ff',
     'B': '#26c281',
@@ -1198,7 +1104,7 @@ function renderSAMMChart() {
   };
   
   streams.forEach((stream, streamIdx) => {
-    ctx.fillStyle = streamColors[stream] + '33'; // 30% opacity
+    ctx.fillStyle = streamColors[stream] + '33';
     ctx.strokeStyle = streamColors[stream];
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1206,18 +1112,17 @@ function renderSAMMChart() {
     let firstPoint = true;
     functions.forEach((func, i) => {
       const practices = practicesByFunction.get(func) || [];
-      // Tính average SAMM level từ quy đổi DSOMM (Bước 4)
       let totalLevel = 0;
       let count = 0;
       practices.forEach(p => {
-        const level = p.sammLevels?.[stream] || 0; // SAMM level từ quy đổi DSOMM
+        const level = p.sammLevels?.[stream] || 0;
         if (level > 0) {
           totalLevel += level;
           count++;
         }
       });
       const avgLevel = count > 0 ? totalLevel / count : 0;
-      const value = Math.max(0, Math.min(3, avgLevel)); // Giới hạn 0-3
+      const value = Math.max(0, Math.min(3, avgLevel));
       
       const angle = i * angleStep - Math.PI / 2;
       const r = radius * (value / 3);
@@ -1236,7 +1141,6 @@ function renderSAMMChart() {
     ctx.stroke();
   });
   
-  // Labels
   ctx.fillStyle = '#e6edf3';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -1251,7 +1155,6 @@ function renderSAMMChart() {
     ctx.fillText(funcName, x, y);
   });
   
-  // Level labels
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.font = '10px sans-serif';
   for (let ring = 1; ring <= 3; ring++) {
@@ -1259,7 +1162,6 @@ function renderSAMMChart() {
     ctx.fillText(ring.toString(), centerX + r - 8, centerY);
   }
   
-  // Legend
   ctx.fillStyle = '#e6edf3';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'left';
@@ -1272,14 +1174,17 @@ function renderSAMMChart() {
     legendY += 18;
   });
   
-  // Watermark
   ctx.save();
-  ctx.globalAlpha = 0.15;
-  ctx.fillStyle = '#e6edf3';
-  ctx.font = 'bold 14px sans-serif';
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
-  ctx.fillText('Powered by Shino-337', canvas.width - 10, canvas.height - 10);
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.fillText('Powered by Shino-337', canvas.width - 15, canvas.height - 15);
   ctx.restore();
 }
 
@@ -1306,15 +1211,13 @@ function renderSAMMMapping() {
     .filter(p => !functionFilter || p.function === functionFilter)
     .sort((a, b) => a.code.localeCompare(b.code));
   
-  // SAMM Summary
   const totalPractices = practices.length;
   const totalFunctions = new Set(practices.map(p => p.function)).size;
   const achievedPractices = practices.filter(p => {
     const streams = streamFilter ? [streamFilter] : ['A', 'B', 'C'];
-    return streams.some(s => (p.sammLevels?.[s] || 0) >= 1); // SAMM level từ quy đổi DSOMM
+    return streams.some(s => (p.sammLevels?.[s] || 0) >= 1);
   }).length;
   
-  // Tính tổng DSOMM score và SAMM level
   let totalDSOMMScore = 0;
   let totalSAMMLevel = 0;
   let count = 0;
@@ -1332,10 +1235,8 @@ function renderSAMMMapping() {
   const avgDSOMMScore = count > 0 ? totalDSOMMScore / count : 0;
   const avgSAMMLevel = count > 0 ? totalSAMMLevel / count : 0;
   
-  // Clear container
   container.innerHTML = '';
   
-  // SAMM Summary
   const summaryDiv = document.createElement('div');
   summaryDiv.className = 'samm-summary';
   summaryDiv.innerHTML = `
@@ -1401,7 +1302,6 @@ function renderSAMMMapping() {
     
     const streams = streamFilter ? [streamFilter] : ['A', 'B', 'C'];
     streams.forEach((stream) => {
-      // Dùng SAMM level từ quy đổi DSOMM score (Bước 4)
       const sammLevel = practice.sammLevels?.[stream] || 0;
       const dsommScore = practice.dsommScore || 0;
       
@@ -1419,7 +1319,6 @@ function renderSAMMMapping() {
       const value = document.createElement('div');
       value.className = 'samm-level-value';
       if (sammLevel > 0) {
-        // Hiển thị mức SAMM (1-3) từ quy đổi DSOMM
         const levelInt = Math.round(sammLevel);
         value.innerHTML = `${t('samm.level')} ${levelInt.toFixed(1)} <span style="font-size: 11px; color: var(--muted);">(DSOMM: ${dsommScore.toFixed(1)})</span>`;
       } else {
@@ -1431,7 +1330,6 @@ function renderSAMMMapping() {
       levels.appendChild(levelDiv);
     });
     
-    // List activities
     const activitiesDiv = document.createElement('div');
     activitiesDiv.className = 'samm-activities';
     activitiesDiv.innerHTML = `<strong>${t('samm.activities')}</strong>`;
@@ -1474,7 +1372,6 @@ async function main() {
   renderSummary();
   renderMatrix();
   
-  // Language selector
   setTimeout(() => {
     const langBtn = $('#lang-btn');
     const langMenu = $('#lang-menu');
@@ -1498,7 +1395,6 @@ async function main() {
         });
       });
       
-      // Close menu when clicking outside
       document.addEventListener('click', (e) => {
         if (langBtn && langMenu && !langBtn.contains(e.target) && !langMenu.contains(e.target)) {
           langMenu.style.display = 'none';
@@ -1507,7 +1403,6 @@ async function main() {
     }
   }, 100);
   
-  // Tab switching
   document.querySelectorAll('.view-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const view = tab.dataset.view;
@@ -1529,7 +1424,6 @@ async function main() {
         if (matrixEl) matrixEl.style.display = 'none';
         if (sammEl) sammEl.style.display = 'block';
         
-        // Render SAMM content
         if (dsommData) {
           try {
             renderSAMMChart();
@@ -1542,7 +1436,6 @@ async function main() {
     });
   });
   
-  // SAMM filters
   $('#samm-function-filter')?.addEventListener('change', () => {
     renderSAMMChart();
     renderSAMMMapping();
