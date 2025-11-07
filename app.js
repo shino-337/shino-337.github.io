@@ -482,14 +482,17 @@ function renderRadarChart() {
     ctx.fillText(ring.toString(), centerX + r - 8, centerY);
   }
   
-  // Watermark
+  // Watermark - Vẽ cuối cùng để đảm bảo hiển thị trên cùng
   ctx.save();
-  ctx.globalAlpha = 0.15;
+  ctx.globalAlpha = 0.2; // Tăng opacity để dễ nhìn hơn
   ctx.fillStyle = '#e6edf3';
-  ctx.font = 'bold 14px sans-serif';
+  ctx.font = 'bold 16px sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
-  ctx.fillText('Powered by Shino-337', canvas.width - 10, canvas.height - 10);
+  // Đảm bảo watermark không bị che bởi labels
+  const watermarkX = canvas.width - 15;
+  const watermarkY = canvas.height - 15;
+  ctx.fillText('Powered by Shino-337', watermarkX, watermarkY);
   ctx.restore();
 }
 
