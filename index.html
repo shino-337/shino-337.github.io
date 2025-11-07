@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OWASP DSOMM DevSecOps Assessment</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1 data-i18n="app.title">Đánh giá DSOMM (DevSecOps)</h1>
+      <div class="actions">
+        <div class="language-selector">
+          <button id="lang-btn" class="lang-btn" title="Language">
+            <span id="lang-icon">🌐</span>
+            <span id="lang-text">EN</span>
+          </button>
+          <div id="lang-menu" class="lang-menu" style="display: none;">
+            <button class="lang-option" data-lang="vi">🇻🇳 Tiếng Việt</button>
+            <button class="lang-option" data-lang="en">🇬🇧 English</button>
+          </div>
+        </div>
+        <label class="file-btn">
+          <input id="import-input" type="file" accept="application/json" />
+          <span data-i18n="import">Nhập đánh giá</span>
+        </label>
+        <button id="export-btn" class="primary" data-i18n="export">Xuất đánh giá</button>
+        <button id="reset-btn" class="danger" data-i18n="reset">Xóa trạng thái</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="dsomm" data-i18n="view.dsomm">DSOMM Assessment</button>
+        <button class="view-tab" data-view="samm" data-i18n="view.samm">SAMM Mapping</button>
+      </div>
+
+      <section class="summary">
+        <h2 data-i18n="summary.title">Tổng quan mức trưởng thành</h2>
+        <div class="overall">
+          <div class="overall-score">
+            <span data-i18n="summary.current">Mức hiện tại:</span>
+            <strong id="overall-score">-</strong>
+            <span class="scale" data-i18n="summary.scale">(thang 1–5)</span>
+          </div>
+          <div class="overall-bar">
+            <div id="overall-progress" class="progress"></div>
+          </div>
+          <div class="segments" id="overall-segments"></div>
+          <div class="overall-legend">
+            <span class="legend-item"><span class="legend-color lv1"></span>Level 1</span>
+            <span class="legend-item"><span class="legend-color lv2"></span>Level 2</span>
+            <span class="legend-item"><span class="legend-color lv3"></span>Level 3</span>
+            <span class="legend-item"><span class="legend-color lv4"></span>Level 4</span>
+            <span class="legend-item"><span class="legend-color lv5"></span>Level 5</span>
+          </div>
+        </div>
+        <div id="domain-cards" class="domains"></div>
+        <div class="chart-section">
+          <h3 data-i18n="summary.analysis">Biểu đồ phân tích</h3>
+          <div id="radar-chart" class="radar-chart"></div>
+        </div>
+      </section>
+
+      <section class="samm-mapping" style="display:none;">
+        <div class="matrix-header sticky">
+          <h2 data-i18n="samm.title">Mapping với OWASP SAMM 2.0</h2>
+          <div class="matrix-controls">
+            <select id="samm-function-filter">
+              <option value="">Tất cả Functions</option>
+            </select>
+            <select id="samm-stream-filter">
+              <option value="">Tất cả Streams</option>
+              <option value="A">Stream A</option>
+              <option value="B">Stream B</option>
+              <option value="C">Stream C</option>
+            </select>
+          </div>
+        </div>
+        <div class="samm-chart-section">
+          <h3 data-i18n="samm.chart">Biểu đồ SAMM</h3>
+          <div id="samm-chart" class="samm-chart"></div>
+        </div>
+        <div id="samm-matrix"></div>
+      </section>
+
+      <section class="matrix">
+        <div class="matrix-header sticky">
+          <h2 data-i18n="matrix.title">Ma trận tiêu chí</h2>
+          <div class="matrix-controls">
+            <select id="domain-filter">
+              <option value="" data-i18n="matrix.allDomains">Tất cả Domain</option>
+            </select>
+            <input type="text" id="search-input" data-i18n-placeholder="matrix.search" placeholder="Tìm kiếm..." />
+            <label style="display:flex;align-items:center;gap:6px;">
+              <input type="checkbox" id="dense-toggle" /> <span data-i18n="matrix.dense">Cô đọng</span>
+            </label>
+          </div>
+          <div class="pagination">
+            <button id="collapse-all" class="page-btn" data-i18n="matrix.collapseAll">Thu gọn tất cả</button>
+            <button id="expand-all" class="page-btn" data-i18n="matrix.expandAll">Mở rộng tất cả</button>
+            <button id="prev-page" class="page-btn" data-i18n="matrix.prev">‹ Trước</button>
+            <span id="page-info" data-i18n="matrix.page">Trang 1 / 1</span>
+            <button id="next-page" class="page-btn" data-i18n="matrix.next">Sau ›</button>
+          </div>
+        </div>
+        <div id="matrix"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>OWASP DSOMM DevSecOps – Bản demo tự đánh giá nội bộ</span>
+      <a href="https://owasp.org/www-project-devsecops-maturity-model/" target="_blank" rel="noreferrer">Tài liệu DSOMM DevSecOps</a>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
+
+
